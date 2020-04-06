@@ -1,0 +1,27 @@
+import telebot
+import requests
+
+bot = telebot.TeleBot('1192099884:AAHYh_B1hEV-VdOX3CRW4w_XF-S4uHs07pU')
+
+@bot.message_handler(commands=['info'])
+def send_covid(message):
+
+    bot.register_next_step_handler(bot.reply_to(message, "Davlatni nomini inglizcha kiriting"), send_covid1)
+
+def send_covid1(mess):
+    while True:  
+        try:
+            url = ('https://coronavirus-19-api.herokuapp.com/countries/{}').format(mess.text)
+            response = requests.get(url, headers={'Accept':'application/json'})
+            data = response.json()
+            total = str(data['cases'])
+            dead = str(data['deaths'])
+            recovered = str(data['recovered'])
+            covid_info = (" {} da : " + "\n" + "Virusni yuqtirganlar: " + total + "\n" + "vafot etganlar : " + dead + "\n" + "Tuzalganlar: " + recovered).format(mess.text)
+            bot.reply_to(mess, covid_info)
+            if covid_info !=None:
+                break
+        except:
+            bot.reply_to(mess, "Mamlakat nomi notogri kiritildi")
+            break
+bot.polling(none_stop= True) 
